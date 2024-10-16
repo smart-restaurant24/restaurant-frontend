@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import axios from 'axios';
 import '../css/Menu.css';
 import Chatbot from './Chatbot';
-import { mockCuisines, mockMenuItems, mockAIPrompts } from './mockApiData';
+import AIPrompts from './AIPrompts';
+import { decryptId } from '../utils/encryption';
+
+const API_URL = process.env.BACKEND_APP_API_URL || 'http://localhost:8000';
 
 const Menu = () => {
   const [cuisines, setCuisines] = useState([]);
@@ -12,47 +16,75 @@ const Menu = () => {
   const [error, setError] = useState(null);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
+  const [restaurantInfo, setRestaurantInfo] = useState(null);
 
-  useEffect(() => {
-    fetchCuisines();
-    fetchAIPrompts();
+  const restaurantId = useMemo(() => {
+    const encryptedId = window.location.pathname.slice(1);
+    return encryptedId;
   }, []);
 
+  const fetchRestaurantInfo = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/restaurant/${restaurantId}`);
+      setRestaurantInfo(response.data);
+    } catch (err) {
+      setError('Failed to fetch restaurant information');
+      console.error('Error fetching restaurant info:', err);
+    }
+  }, [restaurantId]);
+
+  const fetchCuisines = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/cuisines/${restaurantId}`);
+      setCuisines(['AI Server Recommendation', ...response.data]);
+      setIsLoading(false);
+    } catch (err) {
+      setError('Failed to fetch cuisines');
+      console.error('Error fetching cuisines:', err);
+    }
+  }, [restaurantId]);
+
+  const fetchAIPrompts = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/ai-prompts/${restaurantId}`);
+      setAiPrompts(response.data);
+    } catch (err) {
+      console.error('Error fetching AI prompts:', err);
+    }
+  }, [restaurantId]);
+
+  const fetchMenuItems = useCallback(async (cuisine) => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/menu/${restaurantId}/${cuisine}`);
+      setMenuItems(response.data);
+      setError(false)
+      setIsLoading(false);
+    } catch (err) {
+      setError('Failed to fetch menu items');
+      setIsLoading(false);
+      console.error('Error fetching menu items:', err);
+    }
+  }, [restaurantId]);
+
   useEffect(() => {
-    if (selectedTab) {
+    fetchRestaurantInfo();
+    fetchCuisines();
+    fetchAIPrompts();
+  }, [fetchRestaurantInfo, fetchCuisines, fetchAIPrompts]);
+
+  useEffect(() => {
+    if (selectedTab && selectedTab !== 'AI Server Recommendation') {
       fetchMenuItems(selectedTab);
     }
-  }, [selectedTab]);
+  }, [selectedTab, fetchMenuItems]);
 
-  const fetchCuisines = () => {
-    setTimeout(() => {
-      setCuisines(['AI Server Recommendation', ...mockCuisines]);
-      setIsLoading(false);
-    }, 500);
-  };
-
-  const fetchAIPrompts = () => {
-    setTimeout(() => {
-      setAiPrompts(mockAIPrompts);
-    }, 500);
-  };
-
-  const fetchMenuItems = (tab) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      if (tab !== 'AI Server Recommendation') {
-        setMenuItems(mockMenuItems[tab] || []);
-      }
-      setIsLoading(false);
-    }, 500);
-  };
-
-  const handlePromptClick = (prompt) => {
+  const handlePromptClick = useCallback((prompt) => {
     setIsChatExpanded(true);
     setChatMessages(prevMessages => [...prevMessages, { text: prompt, sender: 'user' }]);
-  };
+  }, []);
 
-  const renderContent = () => {
+  const renderContent = useCallback(() => {
     if (isLoading) {
       return <p>Loading...</p>;
     }
@@ -62,16 +94,7 @@ const Menu = () => {
     }
 
     if (selectedTab === 'AI Server Recommendation') {
-      return (
-        <div className="ai-recommendation-content">
-          <h2>Feeling lost? Explore Dish Recommendation!</h2>
-          {aiPrompts.map((prompt, index) => (
-            <div key={index} className="ai-prompt" onClick={() => handlePromptClick(prompt)}>
-              {prompt}
-            </div>
-          ))}
-        </div>
-      );
+      return <AIPrompts prompts={aiPrompts} onPromptClick={handlePromptClick} />;
     }
 
     return (
@@ -89,7 +112,11 @@ const Menu = () => {
         ))}
       </div>
     );
-  };
+  }, [isLoading, error, selectedTab, aiPrompts, menuItems, handlePromptClick]);
+
+  if (!restaurantInfo) {
+    return <p>Loading restaurant information...</p>;
+  }
 
   return (
     <>
@@ -97,8 +124,10 @@ const Menu = () => {
         <div className="menu-container">
           <header>
             <div className="restaurant-info">
-              <div className="logo">🍔</div>
-              <h1>Tasty Bites</h1>
+              <div className="logo">
+                <img src={restaurantInfo.logo} alt={restaurantInfo.name} />
+              </div>
+              <h1>{restaurantInfo.name}</h1>
             </div>
             <button className="profile-button">👤</button>
           </header>
@@ -125,6 +154,7 @@ const Menu = () => {
         setIsExpanded={setIsChatExpanded}
         messages={chatMessages} 
         setMessages={setChatMessages}
+        restaurantId={restaurantId}
       />
     </>
   );

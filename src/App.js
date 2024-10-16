@@ -1,13 +1,12 @@
 import React from 'react';
 import Menu from './components/Menu';
-import './App.css';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
       <Menu />
     </div>
   );
-}
+};
 
 export default App;

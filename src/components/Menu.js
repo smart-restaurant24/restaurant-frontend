@@ -5,7 +5,7 @@ import Chatbot from './Chatbot';
 import AIPrompts from './AIPrompts';
 import { decryptId } from '../utils/encryption';
 
-const API_URL = process.env.BACKEND_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Menu = () => {
   const [cuisines, setCuisines] = useState([]);
@@ -20,33 +20,40 @@ const Menu = () => {
 
   const restaurantId = useMemo(() => {
     const encryptedId = window.location.pathname.slice(1);
+    console.log('Restaurant ID:', encryptedId);
     return encryptedId;
   }, []);
 
   const fetchRestaurantInfo = useCallback(async () => {
+    console.log('Fetching restaurant info... from ' + API_URL);
     try {
       const response = await axios.get(`${API_URL}/api/restaurant/${restaurantId}`);
+      console.log('Restaurant info:', response.data);
       setRestaurantInfo(response.data);
     } catch (err) {
-      setError('Failed to fetch restaurant information');
       console.error('Error fetching restaurant info:', err);
+      setError('Failed to fetch restaurant information');
     }
   }, [restaurantId]);
 
   const fetchCuisines = useCallback(async () => {
+    console.log('Fetching cuisines...');
     try {
       const response = await axios.get(`${API_URL}/api/cuisines/${restaurantId}`);
+      console.log('Cuisines:', response.data);
       setCuisines(['AI Server Recommendation', ...response.data]);
       setIsLoading(false);
     } catch (err) {
-      setError('Failed to fetch cuisines');
       console.error('Error fetching cuisines:', err);
+      setError('Failed to fetch cuisines');
     }
   }, [restaurantId]);
 
   const fetchAIPrompts = useCallback(async () => {
+    console.log('Fetching AI prompts...');
     try {
       const response = await axios.get(`${API_URL}/api/ai-prompts/${restaurantId}`);
+      console.log('AI prompts:', response.data);
       setAiPrompts(response.data);
     } catch (err) {
       console.error('Error fetching AI prompts:', err);
@@ -54,37 +61,43 @@ const Menu = () => {
   }, [restaurantId]);
 
   const fetchMenuItems = useCallback(async (cuisine) => {
+    console.log(`Fetching menu items for cuisine: ${cuisine}`);
     setIsLoading(true);
     try {
       const response = await axios.get(`${API_URL}/api/menu/${restaurantId}/${cuisine}`);
+      console.log('Menu items:', response.data);
       setMenuItems(response.data);
-      setError(false)
+      setError(false);
       setIsLoading(false);
     } catch (err) {
+      console.error('Error fetching menu items:', err);
       setError('Failed to fetch menu items');
       setIsLoading(false);
-      console.error('Error fetching menu items:', err);
     }
   }, [restaurantId]);
 
   useEffect(() => {
+    console.log('Component mounted. Fetching initial data...');
     fetchRestaurantInfo();
     fetchCuisines();
     fetchAIPrompts();
   }, [fetchRestaurantInfo, fetchCuisines, fetchAIPrompts]);
 
   useEffect(() => {
+    console.log('Selected tab changed:', selectedTab);
     if (selectedTab && selectedTab !== 'AI Server Recommendation') {
       fetchMenuItems(selectedTab);
     }
   }, [selectedTab, fetchMenuItems]);
 
   const handlePromptClick = useCallback((prompt) => {
+    console.log('Prompt clicked:', prompt);
     setIsChatExpanded(true);
     setChatMessages(prevMessages => [...prevMessages, { text: prompt, sender: 'user' }]);
   }, []);
 
   const renderContent = useCallback(() => {
+    console.log('Rendering content for tab:', selectedTab);
     if (isLoading) {
       return <p>Loading...</p>;
     }
@@ -114,6 +127,7 @@ const Menu = () => {
     );
   }, [isLoading, error, selectedTab, aiPrompts, menuItems, handlePromptClick]);
 
+  console.log('Restaurant info:', restaurantInfo);
   if (!restaurantInfo) {
     return <p>Loading restaurant information...</p>;
   }

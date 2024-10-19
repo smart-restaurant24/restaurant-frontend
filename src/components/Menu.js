@@ -5,7 +5,7 @@ import Chatbot from './Chatbot';
 import AIPrompts from './AIPrompts';
 import { decryptId } from '../utils/encryption';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "http://localhost:8000";
 
 const Menu = () => {
   const [cuisines, setCuisines] = useState([]);
@@ -133,34 +133,33 @@ const Menu = () => {
   }
 
   return (
-    <>
-      <div className={`content-wrapper ${isChatExpanded ? 'chat-expanded' : ''}`}>
-        <div className="menu-container">
-          <header>
-            <div className="restaurant-info">
-              <div className="logo">
-                <img src={restaurantInfo.logo} alt={restaurantInfo.name} />
-              </div>
-              <h1>{restaurantInfo.name}</h1>
+    <div className="menu-container">
+      <div className="fixed-header">
+        <header>
+          <div className="restaurant-info">
+            <div className="logo">
+              <img src={restaurantInfo.logo} alt={restaurantInfo.name} />
             </div>
-            <button className="profile-button">👤</button>
-          </header>
-          
-          <div className="category-tabs">
-            {cuisines.map((cuisine) => (
-              <button
-                key={cuisine}
-                className={`${selectedTab === cuisine ? 'active' : ''} ${cuisine === 'AI Server Recommendation' ? 'ai-recommendation' : ''}`}
-                onClick={() => setSelectedTab(cuisine)}
-              >
-                {cuisine}
-              </button>
-            ))}
+            <h1>{restaurantInfo.name}</h1>
           </div>
-          
-          <div className="menu-section">
-            {renderContent()}
-          </div>
+        </header>
+        
+        <div className="category-tabs">
+          {cuisines.map((cuisine) => (
+            <button
+              key={cuisine}
+              className={`${selectedTab === cuisine ? 'active' : ''} ${cuisine === 'AI Server Recommendation' ? 'ai-recommendation' : ''}`}
+              onClick={() => setSelectedTab(cuisine)}
+            >
+              {cuisine}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <div className="scrollable-content">
+        <div className="menu-section">
+          {renderContent()}
         </div>
       </div>
       <Chatbot 
@@ -169,9 +168,8 @@ const Menu = () => {
         messages={chatMessages} 
         setMessages={setChatMessages}
         restaurantId={restaurantId}
-      />
-    </>
+        />
+    </div>
   );
 };
-
 export default Menu;

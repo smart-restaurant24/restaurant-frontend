@@ -8,6 +8,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantId }) => {
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
   const scrollToBottom = useCallback(() => {
@@ -23,6 +24,23 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
       setInputMessage(transcript);
     }
   }, [transcript]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (chatContainerRef.current) {
+        const visualViewport = window.visualViewport;
+        chatContainerRef.current.style.bottom = `${visualViewport.height - visualViewport.pageTop - visualViewport.height}px`;
+      }
+    };
+
+    window.visualViewport.addEventListener('resize', handleResize);
+    window.visualViewport.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport.removeEventListener('resize', handleResize);
+      window.visualViewport.removeEventListener('scroll', handleResize);
+    };
+  }, []);
 
   const generateResponse = useCallback(async (userMessage) => {
     try {
@@ -47,9 +65,10 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
     if (inputMessage.trim()) {
       setMessages(prevMessages => [...prevMessages, { text: inputMessage, sender: 'user' }]);
       setInputMessage('');
+      setIsExpanded(true);
       resetTranscript();
     }
-  }, [inputMessage, setMessages, resetTranscript]);
+  }, [inputMessage, setMessages, resetTranscript, setIsExpanded]);
 
   const toggleExpand = useCallback(() => {
     setIsExpanded(prev => !prev);
@@ -69,7 +88,7 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
   }, [handleSend]);
 
   return (
-    <div className={`chat-container ${isExpanded ? 'expanded' : ''}`}>
+    <div ref={chatContainerRef} className={`chat-container ${isExpanded ? 'expanded' : ''}`}>
       {isExpanded && (
         <>
           <div className="chat-header">
@@ -97,7 +116,7 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           onClick={(e) => e.stopPropagation()}
         />
-        <button className="send-button" onClick={(e) => { e.stopPropagation(); handleSend(); }}>
+        <button className="send-button" onClick={(e) => { e.stopPropagation(); handleSend();}}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
           </svg>

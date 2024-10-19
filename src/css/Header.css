@@ -6,16 +6,21 @@ header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     width: 100%;
     box-sizing: border-box;
+    border-radius: 0 0 15px 15px;
+    position: relative;
+    margin-bottom: 5px;
   }
   
   .restaurant-info {
     display: flex;
     align-items: center;
-    gap: 15px;
     width: 100%;
+    justify-content: center;
   }
   
   .logo {
+    position: absolute;
+    left: 20px;
     width: 40px;
     height: 40px;
     overflow: hidden;
@@ -32,5 +37,8 @@ header {
     font-size: 24px;
     font-weight: 600;
     margin: 0;
-    flex-grow: 1;
+    text-align: center; /* Add this line */
+    width: 100%; /* Add this line */
+    padding-left: 40px; /* Adjust this value if needed */
+    padding-right: 40px; /* Add this line to balance the layout */
   }

@@ -24,7 +24,6 @@ const MenuContent = ({ selectedTab, menuItems, aiPrompts, isLoading, error, onPr
           <p>{item.description}</p>
           <div className="price-add">
             <span>{item.price}</span>
-            <button>+</button>
           </div>
         </div>
       ))}

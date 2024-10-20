@@ -12,6 +12,7 @@ body {
     display: flex;
     flex-direction: column;
     background-color: #f0eeee;
+    overflow: hidden;
   }
   
   .fixed-header {
@@ -19,7 +20,6 @@ body {
     top: 0;
     z-index: 10;
     background-color: #f0eeee;
-    margin: 5px;
   }
   
   .scrollable-content {
@@ -27,6 +27,7 @@ body {
     overflow-y: auto;
     padding: 20px;
     padding-bottom: 60px;
+    overflow-y: auto;
     transition: padding-bottom 0.3s ease;
     border-radius: 15px 15px 15px 15px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);

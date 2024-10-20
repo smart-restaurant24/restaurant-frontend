@@ -41,16 +41,16 @@ const Menu = () => {
   }
 
   return (
+    <>
+    <div className="fixed-header">
+    <Header restaurantInfo={restaurantInfo} />
+    <CategoryTabs 
+      cuisines={cuisines} 
+      selectedTab={selectedTab} 
+      onTabChange={handleTabChange} 
+    />
+  </div>
     <div className="menu-container">
-      <div className="fixed-header">
-        <Header restaurantInfo={restaurantInfo} />
-        <CategoryTabs 
-          cuisines={cuisines} 
-          selectedTab={selectedTab} 
-          onTabChange={handleTabChange} 
-        />
-      </div>
-      
       <div className={`scrollable-content ${isChatExpanded ? 'chat-expanded' : ''}`}>
         <MenuContent 
           selectedTab={selectedTab}
@@ -70,6 +70,7 @@ const Menu = () => {
         restaurantId={restaurantId}
       />
     </div>
+    </>
   );
 };
 

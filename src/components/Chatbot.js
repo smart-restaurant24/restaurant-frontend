@@ -3,7 +3,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import axios from 'axios';
 import '../css/Chatbot.css';
 
-const API_URL =  'http://localhost:8000';
+const API_URL =  process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantId }) => {
   const [inputMessage, setInputMessage] = useState('');
@@ -96,7 +96,7 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
     console.log("after" + isExpanded)
     // handleResize();
   }, [setIsExpanded,isExpanded]);
-  
+
 
   const startListening = useCallback(() => {
     if (browserSupportsSpeechRecognition) {

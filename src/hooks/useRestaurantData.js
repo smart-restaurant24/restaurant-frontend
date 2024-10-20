@@ -21,8 +21,19 @@ export const useRestaurantData = (API_URL) => {
       const response = await axios.get(`${API_URL}/api/restaurant/${restaurantId}`);
       console.log('Restaurant info:', response.data);
       setRestaurantInfo(response.data);
-    } catch (err) {
-      console.error('Error fetching restaurant info:', err);
+    } catch (error) {
+      console.error('Error fetching restaurant info:', error);
+          if (error.response) {
+      // The request was made and the server responded with a status code
+      console.log('Response data:', error.response.data);
+      console.log('Response status:', error.response.status);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log('Request data:', error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error message:', error.message);
+    }
       setError('Failed to fetch restaurant information');
     }
   }, [API_URL, restaurantId]);

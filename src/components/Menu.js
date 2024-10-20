@@ -6,7 +6,7 @@ import Header from './Header';
 import CategoryTabs from './CategoryTabs';
 import MenuContent from './MenuContent';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = 'http://localhost:8000';
 
 const Menu = () => {
   const [selectedTab, setSelectedTab] = useState('AI Server Recommendation');

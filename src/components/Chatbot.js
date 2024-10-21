@@ -23,8 +23,8 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
       setKeyboardHeight(newKeyboardHeight);
     };
 
-    window.visualViewport.addEventListener('resize', handleResize);
-    return () => window.visualViewport.removeEventListener('resize', handleResize);
+    // window.visualViewport.addEventListener('resize', handleResize);
+    // return () => window.visualViewport.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {

@@ -18,16 +18,6 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      const newKeyboardHeight = window.innerHeight - window.visualViewport.height;
-      setKeyboardHeight(newKeyboardHeight);
-    };
-
-    // window.visualViewport.addEventListener('resize', handleResize);
-    // return () => window.visualViewport.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
@@ -40,6 +30,8 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
   const handleResize = useCallback(() => {
     if (isExpanded && lastMessageRef.current && chatContainerRef.current) {
       console.log("inside:", isExpanded);
+      const newKeyboardHeight = window.innerHeight - window.visualViewport.height;
+      setKeyboardHeight(newKeyboardHeight);
       const lastMessageHeight = lastMessageRef.current.offsetHeight;
       const newHeight = isExpanded ? Math.max(lastMessageHeight + 150, 300) : 50;
       chatContainerRef.current.style.height = `${newHeight}px`;

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import '../css/Layout.css';
 import Chatbot from './Chatbot';
 import { useRestaurantData } from '../hooks/useRestaurantData';
@@ -12,6 +12,7 @@ const Menu = () => {
   const [selectedTab, setSelectedTab] = useState('AI Server Recommendation');
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const { 
     restaurantInfo, 
@@ -36,32 +37,43 @@ const Menu = () => {
     setChatMessages(prevMessages => [...prevMessages, { text: prompt, sender: 'user' }]);
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const isKeyboard = window.innerHeight < window.outerHeight;
+      setIsKeyboardVisible(isKeyboard);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!restaurantInfo) {
     return <p>Loading restaurant information...</p>;
   }
 
   return (
-    <>
-    <div className="fixed-header">
-    <Header restaurantInfo={restaurantInfo} />
-    <CategoryTabs 
-      cuisines={cuisines} 
-      selectedTab={selectedTab} 
-      onTabChange={handleTabChange} 
-    />
-  </div>
-    <div className="menu-container">
-      <div className={`scrollable-content ${isChatExpanded ? 'chat-expanded' : ''}`}>
-        <MenuContent 
-          selectedTab={selectedTab}
-          menuItems={menuItems}
-          aiPrompts={aiPrompts}
-          isLoading={isLoading}
-          error={error}
-          onPromptClick={handlePromptClick}
+    <div className={`menu-page ${isKeyboardVisible ? 'keyboard-visible' : ''}`}>
+      <div className="fixed-header">
+        <Header restaurantInfo={restaurantInfo} />
+        <CategoryTabs 
+          cuisines={cuisines} 
+          selectedTab={selectedTab} 
+          onTabChange={handleTabChange} 
         />
       </div>
-
+      <div className="menu-container">
+        <div className={`scrollable-content ${isChatExpanded ? 'chat-expanded' : ''}`}>
+          <MenuContent 
+            selectedTab={selectedTab}
+            menuItems={menuItems}
+            aiPrompts={aiPrompts}
+            isLoading={isLoading}
+            error={error}
+            onPromptClick={handlePromptClick}
+          />
+        </div>
+      </div>
+      
       <Chatbot 
         isExpanded={isChatExpanded}
         setIsExpanded={setIsChatExpanded}
@@ -70,7 +82,6 @@ const Menu = () => {
         restaurantId={restaurantId}
       />
     </div>
-    </>
   );
 };
 

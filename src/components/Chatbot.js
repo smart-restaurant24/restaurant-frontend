@@ -45,14 +45,6 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
     handleResize();
 
     // Add event listeners
-    window.visualViewport.addEventListener('resize', handleResize);
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup function to remove event listeners
-    return () => {
-      window.visualViewport.removeEventListener('resize', handleResize);
-      window.removeEventListener('resize', handleResize);
-    };
   }, [handleResize,isExpanded]);
 
   useEffect(() => {

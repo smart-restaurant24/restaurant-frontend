@@ -11,9 +11,20 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
   const chatContainerRef = useRef(null);
   const lastMessageRef = useRef(null);
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newKeyboardHeight = window.innerHeight - window.visualViewport.height;
+      setKeyboardHeight(newKeyboardHeight);
+    };
+
+    window.visualViewport.addEventListener('resize', handleResize);
+    return () => window.visualViewport.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -29,16 +40,15 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
   const handleResize = useCallback(() => {
     if (isExpanded && lastMessageRef.current && chatContainerRef.current) {
       console.log("inside:", isExpanded);
-      const viewportHeight = window.innerHeight;
       const lastMessageHeight = lastMessageRef.current.offsetHeight;
-      const keyboardHeight = viewportHeight - window.visualViewport.height;
-      chatContainerRef.current.style.height = `${isExpanded ? lastMessageHeight + 150 : 50}px`;
+      const newHeight = isExpanded ? Math.max(lastMessageHeight + 150, 300) : 50;
+      chatContainerRef.current.style.height = `${newHeight}px`;
       chatContainerRef.current.style.bottom = `${keyboardHeight}px`;
     }
     else if(!isExpanded){
       chatContainerRef.current.style.height = `50px`;
     }
-  }, [isExpanded, lastMessageRef, chatContainerRef]);
+  }, [isExpanded, lastMessageRef, chatContainerRef,keyboardHeight]);
 
   useEffect(() => {
     // Call handleResize immediately when the component mounts or isExpanded changes
@@ -104,7 +114,8 @@ const Chatbot = ({ isExpanded, setIsExpanded, messages, setMessages, restaurantI
   }, [handleSend]);
 
   return (
-    <div ref={chatContainerRef} className={`chat-container ${isExpanded ? 'expanded' : ''}`}>
+    <div ref={chatContainerRef} className={`chat-container ${isExpanded ? 'expanded' : ''}`}
+    style={{ position: 'fixed', bottom: `${keyboardHeight}px`, left: 0, right: 0, transition: 'all 0.3s ease-out' }}>
       {isExpanded && (
         <>
           <div className="chat-header">
